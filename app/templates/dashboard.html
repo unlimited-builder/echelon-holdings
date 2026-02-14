@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-10 md:px-20 py-12">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+        <div class="flex flex-col md:flex-row md:items-end gap-8">
+            <div>
+                <h2 class="text-xs uppercase tracking-[0.4em] text-white/40 mb-2">Portfolio Overview</h2>
+                <div class="text-5xl md:text-7xl font-light tracking-tighter serif">
+                    <span class="opacity-30 text-3xl">$</span><span id="total-value">---,---,---</span>
+                </div>
+            </div>
+            <div class="pb-2 flex gap-4">
+                <a href="/withdraw"
+                    class="px-6 py-2 border border-red-500/50 text-red-500/70 text-[10px] uppercase tracking-[0.2em] hover:bg-red-500 hover:text-white transition-all">
+                    Request Withdrawal
+                </a>
+                <a href="/ledger"
+                    class="px-6 py-2 border border-white/20 text-white/40 text-[10px] uppercase tracking-[0.2em] hover:bg-white/5 hover:text-white transition-all">
+                    History
+                </a>
+            </div>
+        </div>
+        <div class="glass px-6 py-4 flex items-center space-x-8">
+            <div>
+                <p class="text-[10px] uppercase tracking-widest text-white/40">24H Delta</p>
+                <p class="emerald-text font-mono">+1.24%</p>
+            </div>
+            <div class="w-px h-8 bg-white/10"></div>
+            <div>
+                <p class="text-[10px] uppercase tracking-widest text-white/40">Clearance Level</p>
+                <p class="gold-text font-mono">TIER-1</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <!-- Live Chart -->
+        <div class="lg:col-span-2 glass p-8 border border-white/10">
+            <h3 class="text-sm uppercase tracking-widest mb-8 opacity-50">Performance Chart</h3>
+            <div class="h-[400px]">
+                <canvas id="portfolio-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Holdings Summary -->
+        <div class="glass p-8 border border-white/10">
+            <h3 class="text-sm uppercase tracking-widest mb-8 opacity-50">My Holdings</h3>
+            <div class="space-y-6">
+                {% if positions %}
+                {# Calculate summary statistics #}
+                {% set total_invested = namespace(value=0) %}
+                {% set total_current = namespace(value=0) %}
+                {% set best_asset = namespace(name='', roi=-999999) %}
+                {% set worst_asset = namespace(name='', roi=999999) %}
+
+                {% for pos in positions %}
+                {% set cost_basis = pos.entry_price * pos.quantity %}
+                {% set current_value = pos.current_price * pos.quantity %}
+                {% set position_roi = ((pos.current_price - pos.entry_price) / pos.entry_price) * 100 %}
+
+                {% set total_invested.value = total_invested.value + cost_basis %}
+                {% set total_current.value = total_current.value + current_value %}
+
+                {% if position_roi > best_asset.roi %}
+                {% set best_asset.roi = position_roi %}
+                {% set best_asset.name = pos.asset_name %}
+                {% endif %}
+
+                {% if position_roi < worst_asset.roi %} {% set worst_asset.roi=position_roi %} {% set
+                    worst_asset.name=pos.asset_name %} {% endif %} {% endfor %} {% set total_gain=total_current.value -
+                    total_invested.value %} {% set overall_roi=((total_current.value - total_invested.value) /
+                    total_invested.value) * 100 if total_invested.value> 0 else 0 %}
+
+                    <!-- Total Assets -->
+                    <div class="pb-4 border-b border-white/5">
+                        <p class="text-[10px] uppercase tracking-widest text-white/40 mb-2">Total Assets</p>
+                        <p class="text-2xl font-mono gold-text">{{ positions|length }}</p>
+                    </div>
+
+                    <!-- Total Invested -->
+                    <div class="pb-4 border-b border-white/5">
+                        <p class="text-[10px] uppercase tracking-widest text-white/40 mb-2">Total Invested</p>
+                        <p class="text-lg font-mono text-white/80">${{ "{:,.2f}".format(total_invested.value) }}</p>
+                    </div>
+
+                    <!-- Current Value -->
+                    <div class="pb-4 border-b border-white/5">
+                        <p class="text-[10px] uppercase tracking-widest text-white/40 mb-2">Current Value</p>
+                        <p class="text-lg font-mono text-white">${{ "{:,.2f}".format(total_current.value) }}</p>
+                    </div>
+
+                    <!-- Total Gain/Loss -->
+                    <div class="pb-4 border-b border-white/5">
+                        <p class="text-[10px] uppercase tracking-widest text-white/40 mb-2">Total Gain/Loss</p>
+                        <p class="text-lg font-mono {{ 'text-emerald-400' if total_gain > 0 else 'text-rose-400' }}">
+                            {{ "+" if total_gain > 0 }}${{ "{:,.2f}".format(total_gain) }}
+                        </p>
+                    </div>
+
+                    <!-- Overall ROI -->
+                    <div class="pb-4 border-b border-white/5">
+                        <p class="text-[10px] uppercase tracking-widest text-white/40 mb-2">Overall ROI</p>
+                        <p
+                            class="text-xl font-mono font-bold {{ 'text-emerald-400' if overall_roi > 0 else 'text-rose-400' }}">
+                            {{ "+" if overall_roi > 0 }}{{ "{:.2f}".format(overall_roi) }}%
+                        </p>
+                    </div>
+
+                    <!-- Best Performer -->
+                    <div class="pb-4 border-b border-white/5">
+                        <p class="text-[10px] uppercase tracking-widest text-white/40 mb-2">Best Performer</p>
+                        <p class="text-xs font-medium text-white/90">{{ best_asset.name }}</p>
+                        <p class="text-sm font-mono text-emerald-400">+{{ "{:.2f}".format(best_asset.roi) }}%</p>
+                    </div>
+
+                    <!-- Worst Performer -->
+                    <div class="pb-4">
+                        <p class="text-[10px] uppercase tracking-widest text-white/40 mb-2">Worst Performer</p>
+                        <p class="text-xs font-medium text-white/90">{{ worst_asset.name }}</p>
+                        <p class="text-sm font-mono text-rose-400">{{ "{:.2f}".format(worst_asset.roi) }}%</p>
+                    </div>
+
+                    {% else %}
+                    <div class="text-center py-8">
+                        <p class="text-sm text-white/40">No assets allocated yet</p>
+                    </div>
+                    {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="mt-12 glass overflow-hidden">
+        <table class="w-full text-left text-sm">
+            <thead class="bg-white/5 border-b border-white/10 text-[10px] uppercase tracking-widest text-white/40">
+                <tr>
+                    <th class="px-8 py-4">Asset Name</th>
+                    <th class="px-8 py-4">Buy Price</th>
+                    <th class="px-8 py-4">Current Value</th>
+                    <th class="px-8 py-4">Profit/Loss</th>
+                </tr>
+            </thead>
+            <tbody id="holdings-table" class="font-light">
+                {% if positions %}
+                {% for pos in positions %}
+                {% set valuation = pos.current_price * pos.quantity %}
+                {% set roi = ((pos.current_price - pos.entry_price) / pos.entry_price) * 100 %}
+                <tr class="border-b border-white/5 table-row-hover transition-colors">
+                    <td class="px-8 py-6 font-medium">{{ pos.asset_name }}</td>
+                    <td class="px-8 py-6 font-mono text-white/60">${{ "{:,.2f}".format(pos.entry_price) }}</td>
+                    <td class="px-8 py-6 font-mono">${{ "{:,.2f}".format(valuation) }}</td>
+                    <td class="px-8 py-6 font-mono {{ 'text-emerald-400' if roi > 0 else 'text-rose-400' }}">
+                        {{ "+" if roi > 0 }}{{ "{:.2f}".format(roi) }}%
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <!-- Rows injected here by loadPortfolio() for backward compatibility/initial load if needed -->
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    async function loadPortfolio() {
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+
+        try {
+            const response = await fetch('/client/portfolio', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+
+            const totalValue = data.total_asset_value || 0;
+            document.getElementById('total-value').textContent = totalValue.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            const tableBody = document.getElementById('holdings-table');
+            const listDiv = document.getElementById('holdings-list');
+
+            /* 
+            data.holdings.forEach(h => {
+                // Table Row moved to server-side Jinja rendering
+            });
+            */
+
+            // Load History for Chart
+            const historyRes = await fetch('/client/history', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const historyData = await historyRes.json();
+
+            const ctx = document.getElementById('portfolio-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historyData.map(h => new Date(h.timestamp).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Valuation',
+                        data: historyData.map(h => h.value),
+                        borderColor: '#D4AF37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 1,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10, family: 'monospace' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10, family: 'monospace' } }
+                        }
+                    }
+                }
+            });
+
+        } catch (e) {
+            console.error('Data retrieval failed', e);
+        }
+    }
+
+    loadPortfolio();
+</script>
+{% endblock %}

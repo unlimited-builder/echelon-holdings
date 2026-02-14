@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="main-content" class="px-10 md:px-20 py-12 relative min-h-[80vh] transition-all duration-300">
+    <!-- Dashboard Navigation -->
+    <div class="mb-12">
+        <a href="/dashboard"
+            class="group flex items-center space-x-2 text-gray-500 hover:text-white transition-all text-[10px] uppercase tracking-[0.2em]">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>Return to Dashboard</span>
+        </a>
+    </div>
+
+    <div class="mb-12">
+        <h2 class="text-3xl italic serif mb-2">Transaction History</h2>
+        <p class="text-xs uppercase tracking-widest text-white/40">Chronological Event Stream — [<span
+                id="display-username">---</span>]</p>
+    </div>
+
+    <div class="glass overflow-hidden" id="ledger-container">
+        <!-- Loading State -->
+        <div id="loading-state" class="p-20 text-center">
+            <div class="mb-6 opacity-20 flex justify-center animate-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+            </div>
+            <h3 class="text-sm uppercase tracking-[0.3em] text-white/40 font-light">Synchronizing Ledger Streams</h3>
+        </div>
+
+        <!-- Table (Hidden by default) -->
+        <div id="table-view" class="overflow-x-auto hidden">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-white/5 text-[10px] uppercase tracking-[0.2em] text-white/40 border-b border-white/10">
+                    <tr>
+                        <th class="px-8 py-5">Timestamp</th>
+                        <th class="px-8 py-5">Reference ID</th>
+                        <th class="px-8 py-5">Type</th>
+                        <th class="px-8 py-5">Description / Asset</th>
+                        <th class="px-8 py-5 text-right">Amount (USD)</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger-body" class="divide-y divide-white/5">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty State (Hidden) -->
+        <div id="empty-state" class="p-20 text-center hidden">
+            <div class="mb-6 opacity-20 flex justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <h3 class="text-sm uppercase tracking-[0.3em] text-white/40 font-light">Ledger Initialization Pending</h3>
+            <p class="text-[10px] uppercase tracking-widest text-white/20 mt-2">Historical data packets are awaiting
+                synchronization</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadLedger() {
+        const token = localStorage.getItem('token');
+        const username = localStorage.getItem('username') || 'Unknown';
+
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        document.getElementById('display-username').textContent = username;
+
+        try {
+            const response = await fetch('/client/ledger-entries', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                throw new Error('Ledger synchronization failed');
+            }
+
+            const transactions = await response.json();
+
+            document.getElementById('loading-state').classList.add('hidden');
+
+            if (transactions.length === 0) {
+                document.getElementById('empty-state').classList.remove('hidden');
+            } else {
+                const tbody = document.getElementById('ledger-body');
+                transactions.forEach((tx, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-white/[0.02] transition-colors group';
+
+                    const date = new Date(tx.transaction_date);
+                    const formattedDate = date.getFullYear() + '-' +
+                        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(date.getDate()).padStart(2, '0') + ' ' +
+                        String(date.getHours()).padStart(2, '0') + ':' +
+                        String(date.getMinutes()).padStart(2, '0');
+
+                    const amountClass = tx.amount > 0 ? 'text-emerald-400' : 'text-rose-400';
+                    const amountPrefix = tx.amount > 0 ? '+' : '-';
+                    const formattedAmount = '$' + Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                    // Generate pseudo-TXN ID
+                    const refId = `#TXN-${String(tx.id).split('').reverse().join('').substring(0, 4).toUpperCase()}${index + 1000}`;
+
+                    row.innerHTML = `
+                        <td class="px-8 py-6 font-mono text-[11px] text-white/50">${formattedDate}</td>
+                        <td class="px-8 py-6 font-mono text-[11px] text-white/30 italic">${refId}</td>
+                        <td class="px-8 py-6">
+                            <span class="px-3 py-1 bg-white/5 border border-white/10 text-[9px] uppercase tracking-widest text-white/60">
+                                ${tx.transaction_type || 'Asset Allocation'}
+                            </span>
+                        </td>
+                        <td class="px-8 py-6 text-white/80 uppercase tracking-wider text-[11px]">${tx.asset_name}</td>
+                        <td class="px-8 py-6 text-right font-light tracking-tight text-base">
+                            <span class="${amountClass} opacity-90 group-hover:opacity-100">${amountPrefix} ${formattedAmount}</span>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                document.getElementById('table-view').classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Audit Ledger Error:', error);
+            document.getElementById('loading-state').innerHTML = `
+                <div class="text-rose-500 uppercase tracking-widest text-[10px]">Synchronization Error: ECH-CORE-500</div>
+                <div class="text-white/20 text-[9px] mt-2 italic">Institutional gateway timed out. Please reconnect.</div>
+            `;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadLedger);
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Echelon Holdings | Portfolio Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A;
+            color: #E5E5E5;
+        }
+
+        h1,
+        h2,
+        h3,
+        .serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .gold-text {
+            color: #D4AF37;
+        }
+
+        .gold-bg {
+            background-color: #D4AF37;
+        }
+
+        .gold-border {
+            border-color: #D4AF37;
+        }
+
+        .emerald-text {
+            color: #50C878;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <nav
+        class="border-b border-white/10 px-8 py-6 flex justify-between items-center backdrop-blur-md sticky top-0 z-50">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 gold-bg rounded-sm transform rotate-45"></div>
+            <span class="text-xl font-bold tracking-tighter uppercase serif">Deep Echelon</span>
+        </div>
+        <div class="flex items-center space-x-8 text-sm uppercase tracking-widest font-light">
+            <a href="/" class="hover:text-[#D4AF37] transition-colors">Dashboard</a>
+            <a href="/login" id="auth-link"
+                class="border border-white/20 px-6 py-2 hover:bg-[#D4AF37] hover:text-black hover:border-transparent transition-all">Client
+                Access</a>
+            <button id="logout-btn" class="hidden text-xs opacity-50 hover:opacity-100">Logout</button>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="border-t border-white/10 p-8 text-center text-[10px] uppercase tracking-[0.3em] opacity-30">
+        Proprietary Hardware/Software Interface &copy; 2026 Deep Echelon Holdings. All Rights Reserved.
+    </footer>
+
+    <script>
+        // Global logic for auth state
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+        const authLink = document.getElementById('auth-link');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        if (token) {
+            authLink.textContent = role === 'admin' ? 'Admin Controls' : 'My Portfolio';
+            authLink.href = role === 'admin' ? '/admin-portal' : '/dashboard';
+            logoutBtn.classList.remove('hidden');
+        }
+
+        logoutBtn?.addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = '/';
+        });
+    </script>
+</body>
+
+</html>

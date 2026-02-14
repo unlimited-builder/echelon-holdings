@@ -1,0 +1,22 @@
+services:
+  app:
+    build: .
+    container_name: echelon_holdings_app
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - PORT=8000
+    networks:
+      - web
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.echelon.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.echelon.entrypoints=websecure"
+      - "traefik.http.routers.echelon.tls.certresolver=myresolver"
+      - "traefik.http.services.echelon.loadbalancer.server.port=8000"
+
+networks:
+  web:
+    external: true

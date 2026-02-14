@@ -1,0 +1,28 @@
+/* Custom transitions and effects */
+.glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glow-gold:hover {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+.ticker-animation {
+    animation: ticker 30s linear infinite;
+}
+
+@keyframes ticker {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+input:focus {
+    outline: none;
+    border-color: #D4AF37 !important;
+}
+
+.table-row-hover:hover {
+    background: rgba(212, 175, 55, 0.05);
+}

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-10 md:px-20 py-12 relative min-h-[80vh]">
+    <div id="main-content" class="transition-all duration-300">
+        <!-- Dashboard Navigation -->
+        <div class="mb-12">
+            <a href="/dashboard"
+                class="group flex items-center space-x-2 text-gray-500 hover:text-white transition-all text-[10px] uppercase tracking-[0.2em]">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 transform group-hover:-translate-x-1 transition-transform" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Return to Dashboard</span>
+            </a>
+        </div>
+
+        <div class="mb-12">
+            <h2 class="text-3xl italic serif mb-2">Withdrawal Request</h2>
+            <p class="text-xs uppercase tracking-widest text-white/40">Fund Transfer Initialization</p>
+        </div>
+
+        <div class="max-w-2xl">
+            <div class="glass p-8">
+                <form id="withdrawal-form" class="space-y-8">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-3">Withdrawal Amount
+                            (USD)</label>
+                        <input type="number" step="0.01" placeholder="0.00" required
+                            class="w-full bg-white/5 border border-white/10 px-6 py-4 text-xl font-light focus:border-[#D4AF37] transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-3">Account
+                            (Bank/Wallet Address)</label>
+                        <input type="text" placeholder="Destination Account Number" required
+                            class="w-full bg-white/5 border border-white/10 px-6 py-4 text-sm focus:border-[#D4AF37] transition-all">
+                    </div>
+
+                    <div
+                        class="p-4 bg-white/5 border-l-2 border-[#D4AF37]/30 text-[10px] text-white/60 leading-relaxed uppercase tracking-wider">
+                        Note: Large withdrawals may require additional verification and approval time.
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-white/5 border border-white/10 text-white/40 py-4 text-xs uppercase tracking-widest cursor-not-allowed">
+                        Submit Withdrawal Request
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regulatory Hold Mechanism (Compliance Modal) -->
+    <div id="compliance-modal"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md px-6 cursor-pointer">
+        <div id="modal-card"
+            class="max-w-md w-full glass border-2 border-red-900 p-10 text-center animate-pulse-slow relative cursor-default">
+            <!-- Dismissal Control -->
+            <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="mb-8 flex justify-center">
+                <div class="w-16 h-16 border-2 border-red-600 rounded-full flex items-center justify-center">
+                    <span class="text-red-600 text-3xl font-bold">!</span>
+                </div>
+            </div>
+
+            <h3 class="text-xl uppercase tracking-[0.2em] text-red-500 mb-6 font-bold">Service Unavailable</h3>
+
+            <div class="space-y-4 mb-10">
+                <p class="text-[11px] uppercase tracking-widest text-white/60 leading-relaxed">
+                    Withdrawals are currently paused for this account. Please contact support to proceed.
+                </p>
+                <div class="h-px w-20 bg-red-900/50 mx-auto"></div>
+                <p class="text-[9px] font-mono text-white/30 uppercase">Error Code: ECH-REF-403-X9</p>
+            </div>
+
+            <a id="compliance-link" href="#"
+                class="block w-full bg-[#D4AF37] text-black py-4 text-xs font-bold uppercase tracking-[0.2em] hover:brightness-110 transition-all">
+                Contact Support
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Outflow restriction logic (Regulatory hold mechanism)
+    document.addEventListener('DOMContentLoaded', () => {
+        const username = localStorage.getItem('username') || 'Unknown';
+        const modal = document.getElementById('compliance-modal');
+        const card = document.getElementById('modal-card');
+        const closeBtn = document.getElementById('close-modal');
+        const mainContent = document.getElementById('main-content');
+        const complianceLink = document.getElementById('compliance-link');
+
+        // Set dynamic email link
+        const subject = encodeURIComponent(`URGENT: Liquidity Release Request - [${username}]`);
+        const body = encodeURIComponent(`Institutional Compliance Desk,\n\nI am requesting a liquidity release for account ID: ${username}.\n\nPlease initiate the verification protocol.`);
+        complianceLink.href = `mailto:compliance@deepechelon.com?subject=${subject}&body=${body}`;
+
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            mainContent.classList.remove('blur-sm');
+        };
+
+        // Trigger the Compliance Circuit Breaker after 650ms
+        setTimeout(() => {
+            modal.classList.remove('hidden');
+            mainContent.classList.add('blur-sm');
+            console.warn('[SECURITY] Protocol Beta-9 Engaged. Transaction vectors locked.');
+        }, 650);
+
+        // User-initiated dismissal logic
+        closeBtn.addEventListener('click', closeModal);
+
+        // Modal background click dismissal (strictly backdrop)
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+    });
+
+    // Disable form submission
+    document.getElementById('withdrawal-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+    });
+</script>
+
+<style>
+    @keyframes pulse-slow {
+
+        0%,
+        100% {
+            border-color: rgba(127, 29, 29, 1);
+        }
+
+        50% {
+            border-color: rgba(220, 38, 38, 0.5);
+        }
+    }
+
+    .animate-pulse-slow {
+        animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+</style>
+{% endblock %}

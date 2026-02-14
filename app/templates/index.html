@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="relative overflow-hidden min-h-[80vh] flex flex-col justify-center px-10 md:px-20">
+    <!-- Animated particle background (simplified) -->
+    <div class="absolute inset-0 opacity-10 pointer-events-none">
+        <canvas id="hero-canvas"></canvas>
+    </div>
+
+    <div class="max-w-4xl relative z-10">
+        <h1 class="text-6xl md:text-8xl mb-6 leading-tight tracking-tight">
+            Expert <span class="gold-text italic">Wealth Management</span><br>
+            for the Future.
+        </h1>
+        <p class="text-xl md:text-2xl font-light text-white/60 mb-12 max-w-2xl leading-relaxed">
+            Access exclusive investment opportunities in real estate, precious stones, and global markets. Secure your
+            financial legacy today.
+        </p>
+        <div class="flex space-x-6">
+            <a href="/login"
+                class="gold-bg text-black px-10 py-4 font-bold uppercase tracking-widest hover:brightness-110 transition-all glow-gold">
+                Member Login
+            </a>
+            <div class="flex items-center space-x-3 px-6 py-4 border border-white/10 glass">
+                <span class="w-2 h-2 rounded-full gold-bg animate-pulse"></span>
+                <span class="text-xs uppercase tracking-[0.2em] font-light">Bank-Grade Security</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticker area -->
+    <div class="mt-32 border-y border-white/5 py-3 overflow-hidden whitespace-nowrap">
+        <div class="ticker-animation inline-block uppercase text-[10px] tracking-[0.4em] text-white/30">
+            ASSETS UNDER MANAGEMENT: $4.2B ... 256-BIT ENCRYPTION ... ESTABLISHED 2018 ... MEMBER FDIC INSURED ...
+            ASSETS UNDER MANAGEMENT: $4.2B ... 256-BIT ENCRYPTION ... ESTABLISHED 2018 ... MEMBER FDIC INSURED ...
+        </div>
+    </div>
+</div>
+
+<section class="px-10 md:px-20 py-24 border-t border-white/5">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+        <div>
+            <h3 class="text-2xl mb-4 gold-text">Tangible Assets</h3>
+            <p class="text-sm text-white/40 leading-relaxed font-light">Invest in real estate, precious stones, and rare
+                commodities. Build a portfolio grounded in physical value and long-term appreciation.</p>
+        </div>
+        <div>
+            <h3 class="text-2xl mb-4 gold-text">Bank-Grade Security</h3>
+            <p class="text-sm text-white/40 leading-relaxed font-light">Your investments are protected with 256-bit
+                encryption and multi-factor authentication. We prioritize the safety of your assets above all else.</p>
+        </div>
+        <div>
+            <h3 class="text-2xl mb-4 gold-text">Data-Driven Strategy</h3>
+            <p class="text-sm text-white/40 leading-relaxed font-light">At Deep Echelon, we combine data-driven
+                strategies with tangible asset classes. From rare gemstones to international property, we help our
+                clients build diverse, resilient portfolios.</p>
+        </div>
+    </div>
+</section>
+
+<script>
+    const canvas = document.getElementById('hero-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    for (let i = 0; i < 50; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5
+        });
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#D4AF37';
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 1, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        requestAnimationFrame(animate);
+    }
+    animate();
+</script>
+{% endblock %}

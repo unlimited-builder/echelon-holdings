@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-10 md:px-20 py-12">
+    <div class="mb-12">
+        <h2 class="text-3xl italic serif mb-2">Admin Controls</h2>
+        <p class="text-xs uppercase tracking-widest text-white/40">Privileged Operations Only</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Provisioning -->
+        <div class="glass p-6">
+            <h3 class="text-xs uppercase tracking-widest mb-6 text-[#D4AF37]">Client Provisioning</h3>
+            <form id="create-user-form" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Username</label>
+                    <input type="text" id="new-username" required
+                        class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Password</label>
+                    <input type="password" id="new-password" required
+                        class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all">
+                </div>
+                <button type="submit"
+                    class="w-full border border-[#D4AF37] text-[#D4AF37] py-2 text-[10px] uppercase tracking-widest hover:bg-[#D4AF37] hover:text-black transition-all">
+                    Create User Account
+                </button>
+            </form>
+            <div id="create-msg" class="mt-4 text-[10px] font-mono uppercase hidden"></div>
+        </div>
+
+        <!-- Liquidity Injection (Direct) -->
+        <div class="glass p-6">
+            <h3 class="text-xs uppercase tracking-widest mb-6 text-[#D4AF37]">Deposit Funds</h3>
+            <form id="injection-form" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Target Client</label>
+                    <select id="user-select"
+                        class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all"></select>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Amount (USD)</label>
+                    <input type="number" id="inject-amount" required
+                        class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all">
+                </div>
+                <button type="submit"
+                    class="w-full bg-[#D4AF37] text-black py-2 font-bold text-[10px] uppercase tracking-widest hover:brightness-110 transition-all">
+                    Deposit Funds
+                </button>
+            </form>
+            <div id="inject-msg" class="mt-4 text-[10px] font-mono uppercase hidden"></div>
+        </div>
+
+        <!-- Temporal Injection -->
+        <div class="glass p-6">
+            <h3 class="text-xs uppercase tracking-widest mb-6 text-[#D4AF37]">Backdate Transaction</h3>
+            <form id="temporal-form" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Target Client</label>
+                    <select id="temporal-user-select"
+                        class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all"></select>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Asset Name</label>
+                    <input type="text" id="temporal-asset" placeholder="e.g. BTC Futures" required
+                        class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all">
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Amount</label>
+                        <input type="number" id="temporal-amount" required
+                            class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Effective
+                            Date</label>
+                        <input type="datetime-local" id="temporal-date" required
+                            class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all text-[10px]">
+                    </div>
+                </div>
+                <button type="submit"
+                    class="w-full border border-[#D4AF37] text-[#D4AF37] py-2 text-[10px] uppercase tracking-widest hover:bg-[#D4AF37] hover:text-black transition-all">
+                    Submit Backdated Entry
+                </button>
+            </form>
+            <div id="temporal-msg" class="mt-4 text-[10px] font-mono uppercase hidden"></div>
+        </div>
+        <!-- Market Maker Console -->
+        <div class="glass p-6">
+            <h3 class="text-xs uppercase tracking-widest mb-6 text-[#D4AF37]">Asset Manager</h3>
+            <form id="allocate-form" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Target Client</label>
+                    <select id="allocate-user-select"
+                        class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all"></select>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Asset
+                        Name</label>
+                    <input type="text" id="allocate-asset" placeholder="e.g. High-Yield Corp Bonds" required
+                        class="w-full bg-white/5 border border-white/10 px-4 py-2 text-sm focus:border-[#D4AF37] transition-all">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Buy
+                            Price</label>
+                        <input type="number" step="0.01" id="allocate-entry" required
+                            class="w-full bg-white/5 border border-white/10 px-2 py-2 text-sm focus:border-[#D4AF37] transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Current
+                            Price</label>
+                        <input type="number" step="0.01" id="allocate-current" required
+                            class="w-full bg-white/5 border border-white/10 px-2 py-2 text-sm focus:border-[#D4AF37] transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-white/40 mb-1">Quantity</label>
+                        <input type="number" step="0.000001" id="allocate-quantity" required
+                            class="w-full bg-white/5 border border-white/10 px-2 py-2 text-sm focus:border-[#D4AF37] transition-all">
+                    </div>
+                </div>
+                <button type="submit"
+                    class="w-full bg-[#D4AF37] text-black py-2 font-bold text-[10px] uppercase tracking-widest hover:brightness-110 transition-all">
+                    Allocate Asset
+                </button>
+            </form>
+            <div id="allocate-msg" class="mt-4 text-[10px] font-mono uppercase hidden"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Clients List -->
+<div class="mt-12 glass overflow-hidden">
+    <h3 class="text-sm uppercase tracking-widest p-8 border-b border-white/10 opacity-50">Active Managed Accounts
+    </h3>
+    <table class="w-full text-left text-sm">
+        <thead class="bg-white/5 text-[10px] uppercase tracking-widest text-white/40">
+            <tr>
+                <th class="px-8 py-4">Client ID</th>
+                <th class="px-8 py-4">Portfolio Balance</th>
+                <th class="px-8 py-4">Status</th>
+            </tr>
+        </thead>
+        <tbody id="users-table">
+            <!-- Rows injected here -->
+        </tbody>
+    </table>
+</div>
+</div>
+
+<script>
+    const token = localStorage.getItem('token');
+    if (!token || localStorage.getItem('role') !== 'admin') window.location.href = '/login';
+
+    async function fetchUsers() {
+        const response = await fetch('/admin/users', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const users = await response.json();
+
+        const table = document.getElementById('users-table');
+        const select = document.getElementById('user-select');
+        const temporalSelect = document.getElementById('temporal-user-select');
+        table.innerHTML = '';
+        select.innerHTML = '';
+        temporalSelect.innerHTML = '';
+
+        users.forEach(u => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-white/5';
+            row.innerHTML = `
+                <td class="px-8 py-6">${u.username}</td>
+                <td class="px-8 py-6 font-mono">$${u.balance.toLocaleString()}</td>
+                <td class="px-8 py-6"><span class="emerald-text text-[10px] uppercase tracking-widest">Active</span></td>
+            `;
+            table.appendChild(row);
+
+            const opt = document.createElement('option');
+            opt.value = u.username;
+            opt.textContent = u.username;
+            select.appendChild(opt.cloneNode(true));
+            temporalSelect.appendChild(opt.cloneNode(true));
+            document.getElementById('allocate-user-select').appendChild(opt);
+        });
+    }
+
+    document.getElementById('allocate-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('allocate-user-select').value;
+        const asset_name = document.getElementById('allocate-asset').value;
+        const entry_price = parseFloat(document.getElementById('allocate-entry').value);
+        const current_price = parseFloat(document.getElementById('allocate-current').value);
+        const quantity = parseFloat(document.getElementById('allocate-quantity').value);
+        const msg = document.getElementById('allocate-msg');
+
+        const response = await fetch('/admin/allocate-position', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username, asset_name, entry_price, current_price, quantity })
+        });
+
+        const data = await response.json();
+        msg.textContent = data.message || data.detail;
+        msg.className = `mt-4 text-[10px] font-mono uppercase ${response.ok ? 'emerald-text' : 'text-red-500'}`;
+        msg.classList.remove('hidden');
+        if (response.ok) fetchUsers();
+    });
+
+    document.getElementById('create-user-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('new-username').value;
+        const password = document.getElementById('new-password').value;
+        const msg = document.getElementById('create-msg');
+
+        const response = await fetch('/admin/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+        msg.textContent = data.message || data.detail;
+        msg.className = `mt-4 text-[10px] font-mono uppercase ${response.ok ? 'emerald-text' : 'text-red-500'}`;
+        msg.classList.remove('hidden');
+        if (response.ok) fetchUsers();
+    });
+
+    document.getElementById('injection-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('user-select').value;
+        const amount = parseFloat(document.getElementById('inject-amount').value);
+        const msg = document.getElementById('inject-msg');
+
+        const response = await fetch('/admin/inject-liquidity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username, amount })
+        });
+
+        const data = await response.json();
+        msg.textContent = data.message || data.detail;
+        msg.className = `mt-4 text-[10px] font-mono uppercase ${response.ok ? 'emerald-text' : 'text-red-500'}`;
+        msg.classList.remove('hidden');
+        if (response.ok) fetchUsers();
+    });
+
+    document.getElementById('temporal-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('temporal-user-select').value;
+        const asset_name = document.getElementById('temporal-asset').value;
+        const amount = parseFloat(document.getElementById('temporal-amount').value);
+        const effective_date = document.getElementById('temporal-date').value;
+        const msg = document.getElementById('temporal-msg');
+
+        const response = await fetch('/admin/retroactive-ledger-reconciliation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username, asset_name, amount, effective_date })
+        });
+
+        const data = await response.json();
+        msg.textContent = data.message || data.detail;
+        msg.className = `mt-4 text-[10px] font-mono uppercase ${response.ok ? 'emerald-text' : 'text-red-500'}`;
+        msg.classList.remove('hidden');
+        if (response.ok) fetchUsers();
+    });
+
+    fetchUsers();
+</script>
+{% endblock %}
