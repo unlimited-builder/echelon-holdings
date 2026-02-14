@@ -16,7 +16,7 @@ COPY . .
 
 # Initialize DB (Note: In production, migrations are usually handled separately)
 # For SQLite demo purposes, we init it here. For Postgres, this should be skipped.
-RUN python init_db.py
+# RUN python init_db.py
 
 EXPOSE 8000
 
