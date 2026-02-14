@@ -14,10 +14,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Initialize DB (Note: In production, migrations are usually handled separately)
-# For SQLite demo purposes, we init it here. For Postgres, this should be skipped.
-RUN python init_db.py
+# Create entrypoint script for database initialization
+RUN echo '#!/bin/sh\n\
+if [ ! -f /app/echelon_holdings.db ]; then\n\
+  echo "Initializing database..."\n\
+  python init_db.py\n\
+fi\n\
+exec gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000' > /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh
 
 EXPOSE 8000
 
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", "--bind", "0.0.0.0:8000"]
+ENTRYPOINT ["/app/entrypoint.sh"]
