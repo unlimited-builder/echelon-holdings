@@ -20,7 +20,9 @@ if [ ! -f /app/echelon_holdings.db ]; then\n\
   echo "Initializing database..."\n\
   python init_db.py\n\
 fi\n\
-exec gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000' > /app/entrypoint.sh && \
+PORT=${PORT:-8000}\n\
+echo "Starting server on port $PORT"\n\
+exec gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:$PORT' > /app/entrypoint.sh && \
     chmod +x /app/entrypoint.sh
 
 EXPOSE 8000
