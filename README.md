@@ -139,7 +139,7 @@ This creates the **"Obsidian"** VIP client profile with:
 - Realistic growth curve demonstrating platform capabilities
 - Login credentials:
   - Username: `client_obsidian`
-  - Password: `secure_entry_123`
+  - Password: `Pieces&G423`
 
 ### Step 5: Run Development Server
 ```bash
@@ -292,17 +292,31 @@ echelon-holdings/
 
 ## Disclaimer
 
-**PROPRIETARY SOFTWARE NOTICE**
+**EDUCATIONAL & PORTFOLIO PROJECT**
 
-This software and its documentation are the exclusive property of **Deep Echelon Holdings**. Unauthorized access, use, reproduction, or distribution is strictly prohibited and may be subject to legal action.
+This project was created as a **portfolio demonstration** to showcase full-stack web development skills, including:
+- FastAPI backend development
+- Database design and ORM usage
+- Authentication and authorization systems
+- Responsive UI/UX design
+- Docker containerization and deployment
 
-**AUTHORIZED PERSONNEL ONLY**
+This project was also **submitted as part of academic coursework** to demonstrate practical software engineering capabilities.
 
-Access to this system is restricted to authorized employees, contractors, and clients of Deep Echelon Holdings. All activities are monitored and logged for security and compliance purposes.
+**NOT FOR PRODUCTION USE**
 
-**FINANCIAL SOFTWARE DISCLAIMER**
+This application is intended **solely for educational, demonstration, and portfolio purposes**. It is **NOT** designed for actual financial transactions, real wealth management, or any commercial use.
 
-This platform is designed for wealth management and portfolio tracking. It does not constitute financial advice, investment recommendations, or a solicitation to buy or sell securities. Past performance is not indicative of future results. Users should consult with qualified financial advisors before making investment decisions.
+**LEGAL NOTICE**
+
+This software must **NOT** be used for:
+- Illegal activities of any kind
+- Fraudulent financial schemes
+- Impersonating legitimate financial institutions
+- Unauthorized access to systems or data
+- Any malicious purposes
+
+By accessing or using this code, you agree to use it only for lawful, educational, and demonstration purposes.
 
 **NO WARRANTY**
 
@@ -310,4 +324,4 @@ This software is provided "as is" without warranty of any kind, express or impli
 
 ---
 
-**© 2026 Deep Echelon Holdings. All rights reserved.**
+**© 2026 Portfolio Project. For educational and demonstration purposes only.**

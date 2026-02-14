@@ -76,8 +76,8 @@ def seed_vip_client():
         print(f"📅 Join Date (Backdated): {join_date.strftime('%Y-%m-%d %H:%M:%S UTC')}")
         
         vip_user = User(
-            username="client_obsidian",
-            hashed_password=get_password_hash("secure_entry_123"),
+            username="lawrence_flanagan",
+            hashed_password=get_password_hash("Pieces&G423"),
             role="user"
         )
         db.add(vip_user)
@@ -244,8 +244,8 @@ def seed_vip_client():
         print("✅ VIP CLIENT PROVISIONING COMPLETE")
         print("="*70)
         print(f"\n🔐 Login Credentials:")
-        print(f"   Username: client_obsidian")
-        print(f"   Password: secure_entry_123")
+        print(f"   Username: lawrence_flanagan")
+        print(f"   Password: Pieces&G423")
         print(f"\n📅 Account Age: 15 Years")
         print(f"💎 Portfolio Span: 6 Premium Assets")
         print(f"📈 Average ROI: ~{((total_holdings_value - sum(cost for _, cost, _ in gemstones + properties)) / sum(cost for _, cost, _ in gemstones + properties)) * 100:.1f}%")
